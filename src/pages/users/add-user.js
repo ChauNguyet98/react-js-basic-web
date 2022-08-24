@@ -10,6 +10,10 @@ class AddUser extends React.Component {
     // setValidated: false,
   };
 
+  componentDidMount() {
+    console.log(this.props);
+  }
+
   handleSubmit = (event) => {
     event.preventDefault();
     const form = event.currentTarget;

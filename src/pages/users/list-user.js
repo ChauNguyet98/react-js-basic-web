@@ -3,6 +3,7 @@ import axios from "axios";
 import { Table, Pagination, Button } from "react-bootstrap";
 import AddUser from "./add-user";
 import { toast } from "react-toastify";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 class ListUser extends React.Component {
   state = {
@@ -11,6 +12,7 @@ class ListUser extends React.Component {
     pageMax: 1,
     paginationHtml: [],
     showModal: false,
+    editUser: {},
   };
 
   async handleGetListUser(number) {
@@ -74,7 +76,7 @@ class ListUser extends React.Component {
   };
 
   render() {
-    const { listUser, page, pageMax, paginationHtml } = this.state;
+    const { listUser, page, pageMax, paginationHtml, editUser } = this.state;
 
     return (
       <div className="list-user container">
@@ -88,6 +90,7 @@ class ListUser extends React.Component {
             closeModal={this.closeModal}
             isOpen={this.state.showModal}
             addUser={this.onAddUser}
+            user={editUser}
           />
         </div>
         <Table striped className="list-user__table">
@@ -97,6 +100,7 @@ class ListUser extends React.Component {
               <th>First Name</th>
               <th>Last Name</th>
               <th>Full Name</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -110,6 +114,14 @@ class ListUser extends React.Component {
                     <td>{user.last_name}</td>
                     <td>
                       {user.first_name} {user.last_name}
+                    </td>
+                    <td>
+                      <Button variant="warning">
+                        <FontAwesomeIcon icon="pen" />
+                      </Button>{" "}
+                      <Button variant="danger">
+                        <FontAwesomeIcon icon="trash" />
+                      </Button>
                     </td>
                   </tr>
                 );
