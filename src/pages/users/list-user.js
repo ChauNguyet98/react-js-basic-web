@@ -63,33 +63,57 @@ class ListUser extends React.Component {
     this.setState({ showModal: false });
   };
 
-  onAddUser = (user) => {
+  onAddUser = () => {
+    const isEmptyObj = Object.keys(this.state.editUser).length === 0;
+    if (!isEmptyObj) {
+      this.setState({ editUser: {} });
+    }
+    this.openModal();
+  };
+
+  onUpdateUser = (user) => {
+    this.setState({ editUser: user });
+    this.openModal();
+  };
+
+  handleAddUpdateUser = (user) => {
     console.log(user);
-    axios
-      .post("https://reqres.in/api/users", user)
-      .then((data) => {
-        toast.success("Add user success!");
-      })
-      .catch((error) => {
-        toast.error("Add user error!");
-      });
+    if (user.id) {
+      axios
+        .post(`https://reqres.in/api/users/${user.id}`, user)
+        .then((data) => {
+          toast.success("Update user success!");
+        })
+        .catch((error) => {
+          toast.error("Update user error!");
+        });
+    } else {
+      axios
+        .post("https://reqres.in/api/users", user)
+        .then((data) => {
+          toast.success("Add user success!");
+        })
+        .catch((error) => {
+          toast.error("Add user error!");
+        });
+    }
   };
 
   render() {
     const { listUser, page, pageMax, paginationHtml, editUser } = this.state;
-
+    console.log(editUser);
     return (
       <div className="list-user container">
         <div className="list-user__title">List user</div>
         <div>
-          <Button variant="success" onClick={this.openModal}>
+          <Button variant="success" onClick={() => this.onAddUser()}>
             Add New User
           </Button>
 
           <AddUser
             closeModal={this.closeModal}
             isOpen={this.state.showModal}
-            addUser={this.onAddUser}
+            addUser={this.handleAddUpdateUser}
             user={editUser}
           />
         </div>
@@ -116,7 +140,10 @@ class ListUser extends React.Component {
                       {user.first_name} {user.last_name}
                     </td>
                     <td>
-                      <Button variant="warning">
+                      <Button
+                        variant="warning"
+                        onClick={() => this.onUpdateUser(user)}
+                      >
                         <FontAwesomeIcon icon="pen" />
                       </Button>{" "}
                       <Button variant="danger">

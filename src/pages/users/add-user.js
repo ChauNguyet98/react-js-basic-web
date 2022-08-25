@@ -3,6 +3,7 @@ import { Modal, Button, Col, Form, InputGroup, Row } from "react-bootstrap";
 
 class AddUser extends React.Component {
   state = {
+    id: "",
     first_name: "",
     last_name: "",
     email: "",
@@ -10,8 +11,24 @@ class AddUser extends React.Component {
     // setValidated: false,
   };
 
-  componentDidMount() {
-    console.log(this.props);
+  static getDerivedStateFromProps(props, state) {
+    // console.log(props);
+    const isEmptyObj = Object.keys(props.user).length === 0;
+    if (!isEmptyObj) {
+      return {
+        id: props.user.id,
+        first_name: props.user.first_name,
+        last_name: props.user.last_name,
+        email: props.user.email,
+      };
+    } else {
+      return {
+        id: "",
+        first_name: "",
+        last_name: "",
+        email: "",
+      };
+    }
   }
 
   handleSubmit = (event) => {
@@ -27,6 +44,7 @@ class AddUser extends React.Component {
     });
 
     const user = {
+      id: this.state.id,
       first_name: this.state.first_name,
       last_name: this.state.last_name,
       email: this.state.email,
