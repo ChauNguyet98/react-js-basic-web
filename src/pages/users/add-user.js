@@ -1,5 +1,5 @@
 import React from "react";
-import { Modal, Button, Col, Form, InputGroup, Row } from "react-bootstrap";
+import { Button, Form, Modal } from "react-bootstrap";
 
 class AddUser extends React.Component {
   state = {
@@ -11,29 +11,35 @@ class AddUser extends React.Component {
     // setValidated: false,
   };
 
-  static getDerivedStateFromProps(props, state) {
-    // console.log(props);
-    const isEmptyObj = Object.keys(props.user).length === 0;
-    if (!isEmptyObj) {
-      return {
-        id: props.user.id,
-        first_name: props.user.first_name,
-        last_name: props.user.last_name,
-        email: props.user.email,
-      };
-    } else {
-      return {
-        id: "",
-        first_name: "",
-        last_name: "",
-        email: "",
-      };
-    }
+  componentWillReceiveProps() {
+    setTimeout(() => {
+      if (this.props.isOpen) {
+        const isEmptyObj = Object.keys(this.props.user).length === 0;
+        if (!isEmptyObj) {
+          this.setState({
+            id: this.props.user.id,
+            first_name: this.props.user.first_name,
+            last_name: this.props.user.last_name,
+            email: this.props.user.email,
+          });
+        } else {
+          this.setState({
+            id: "",
+            first_name: "",
+            last_name: "",
+            email: "",
+          });
+        }
+      }
+    }, 100);
   }
 
   handleSubmit = (event) => {
     event.preventDefault();
     const form = event.currentTarget;
+
+    console.log(form.checkValidity());
+    console.log(form);
 
     if (form.checkValidity() === false) {
       return;
@@ -73,6 +79,7 @@ class AddUser extends React.Component {
 
   render() {
     let { first_name, last_name, email, validated } = this.state;
+
     return (
       <div>
         <Modal show={this.props.isOpen} onHide={this.props.closeModal}>

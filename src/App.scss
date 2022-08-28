@@ -34,6 +34,7 @@
 }
 
 @import 'bootstrap/dist/css/bootstrap.min.css';
-@import './styles/navbar.scss';
-@import './styles/home.scss';
-@import './styles/list-user.scss';
+@import './styles/_navbar';
+@import './styles/_home';
+@import './styles/_list-user';
+@import './styles/login'

@@ -1,0 +1,22 @@
+.login {
+    width: 40%;
+    margin: 40px auto 0 auto;
+  
+    &__form {
+      &--label {
+        font-size: 16px;
+        font-weight: bold;
+      }
+  
+      &--error-message {
+        font-size: 14px;
+        font-weight: normal;
+      }
+  
+      &--btn {
+        margin-top: 12px;
+        display: flex;
+        justify-content: end;
+      }
+    }
+  }

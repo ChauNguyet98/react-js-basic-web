@@ -1,9 +1,9 @@
-import React from "react";
-import axios from "axios";
-import { Table, Pagination, Button } from "react-bootstrap";
-import AddUser from "./add-user";
-import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import axios from "axios";
+import React from "react";
+import { Button, Pagination, Table, Modal, Spinner } from "react-bootstrap";
+import { toast } from "react-toastify";
+import AddUser from "./add-user";
 
 class ListUser extends React.Component {
   state = {
@@ -12,7 +12,10 @@ class ListUser extends React.Component {
     pageMax: 1,
     paginationHtml: [],
     showModal: false,
+    showDeleteModal: false,
     editUser: {},
+    deleteUser: {},
+    loadingDelete: false,
   };
 
   async handleGetListUser(number) {
@@ -59,8 +62,22 @@ class ListUser extends React.Component {
     this.setState({ showModal: true });
   };
 
+  openDeleteModal = (user) => {
+    this.setState({
+      deleteUser: user,
+      showDeleteModal: true,
+    });
+  };
+
   closeModal = () => {
     this.setState({ showModal: false });
+  };
+
+  closeDeleteModal = () => {
+    this.setState({
+      deleteUser: {},
+      showDeleteModal: false,
+    });
   };
 
   onAddUser = () => {
@@ -83,6 +100,7 @@ class ListUser extends React.Component {
         .post(`https://reqres.in/api/users/${user.id}`, user)
         .then((data) => {
           toast.success("Update user success!");
+          this.handleGetListUser(this.state.page);
         })
         .catch((error) => {
           toast.error("Update user error!");
@@ -92,6 +110,7 @@ class ListUser extends React.Component {
         .post("https://reqres.in/api/users", user)
         .then((data) => {
           toast.success("Add user success!");
+          this.handleGetListUser(this.state.page);
         })
         .catch((error) => {
           toast.error("Add user error!");
@@ -99,9 +118,35 @@ class ListUser extends React.Component {
     }
   };
 
+  handleDeleteUser = () => {
+    const { deleteUser, loadingDelete } = this.state;
+    if (!loadingDelete) {
+      this.setState({ loadingDelete: true });
+      axios
+        .delete(`https://reqres.in/api/users/${deleteUser.id}`)
+        .then((data) => {
+          toast.success("Delete user success!");
+          this.setState({ loadingDelete: false });
+          this.closeDeleteModal();
+          this.handleGetListUser(this.state.page);
+        })
+        .catch((error) => {
+          toast.error("Delete user error!");
+          this.setState({ loadingDelete: false });
+        });
+    }
+  };
+
   render() {
-    const { listUser, page, pageMax, paginationHtml, editUser } = this.state;
-    console.log(editUser);
+    const {
+      listUser,
+      paginationHtml,
+      editUser,
+      showModal,
+      showDeleteModal,
+      loadingDelete,
+    } = this.state;
+    // console.log(editUser);
     return (
       <div className="list-user container">
         <div className="list-user__title">List user</div>
@@ -112,7 +157,7 @@ class ListUser extends React.Component {
 
           <AddUser
             closeModal={this.closeModal}
-            isOpen={this.state.showModal}
+            isOpen={showModal}
             addUser={this.handleAddUpdateUser}
             user={editUser}
           />
@@ -141,12 +186,16 @@ class ListUser extends React.Component {
                     </td>
                     <td>
                       <Button
+                        style={{ color: "#fff" }}
                         variant="warning"
                         onClick={() => this.onUpdateUser(user)}
                       >
                         <FontAwesomeIcon icon="pen" />
                       </Button>{" "}
-                      <Button variant="danger">
+                      <Button
+                        variant="danger"
+                        onClick={() => this.openDeleteModal(user)}
+                      >
                         <FontAwesomeIcon icon="trash" />
                       </Button>
                     </td>
@@ -159,6 +208,32 @@ class ListUser extends React.Component {
         <Pagination className="list-user__pagination">
           {paginationHtml}
         </Pagination>
+
+        <Modal show={showDeleteModal} onHide={() => this.closeDeleteModal()}>
+          <Modal.Header closeButton>
+            <Modal.Title>Are you sure?</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>Do you realy want to delete this user!</Modal.Body>
+          <Modal.Footer>
+            <Button variant="light" onClick={this.closeDeleteModal}>
+              No
+            </Button>
+            <Button
+              variant="danger"
+              disabled={loadingDelete}
+              onClick={() => this.handleDeleteUser()}
+            >
+              {loadingDelete && (
+                <Spinner
+                  style={{ width: "20px", height: "20px", marginRight: "8px" }}
+                  animation="border"
+                  variant="light"
+                />
+              )}
+              Yes
+            </Button>
+          </Modal.Footer>
+        </Modal>
       </div>
     );
   }
