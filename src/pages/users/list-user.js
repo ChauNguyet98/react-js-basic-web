@@ -1,7 +1,14 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
 import React from "react";
-import { Button, Pagination, Table, Modal, Spinner } from "react-bootstrap";
+import {
+  Button,
+  Pagination,
+  Table,
+  Modal,
+  Spinner,
+  Form,
+} from "react-bootstrap";
 import { toast } from "react-toastify";
 import AddUser from "./add-user";
 
@@ -11,35 +18,52 @@ class ListUser extends React.Component {
     page: 1,
     pageMax: 1,
     paginationHtml: [],
+    showFilter: false,
     showModal: false,
     showDeleteModal: false,
     editUser: {},
     deleteUser: {},
     loadingDelete: false,
+    filter: {
+      id: "",
+    },
   };
 
-  async handleGetListUser(number) {
-    if (number === this.state.page && this.state.paginationHtml.length > 0) {
-      return;
-    }
+  async handleGetListUser(filter) {
+    // if (
+    //   filter.page === this.state.page &&
+    //   this.state.paginationHtml.length > 0
+    // ) {
+    //   return;
+    // }
 
     const data = await axios({
       method: "get",
       url: "https://reqres.in/api/users",
-      params: {
-        page: number,
-      },
+      params: filter,
     });
 
     const paginationHtml = [];
-    for (let number = 1; number <= data.data.total_pages; number++) {
+    if (data.data.total_pages) {
+      for (let index = 1; index <= data.data.total_pages; index++) {
+        paginationHtml.push(
+          <Pagination.Item
+            key={index}
+            active={index === data.data.page}
+            onClick={() => this.onPageIndexChange(index)}
+          >
+            {index}
+          </Pagination.Item>
+        );
+      }
+    } else {
       paginationHtml.push(
         <Pagination.Item
-          key={number}
-          active={number === data.data.page}
-          onClick={() => this.handleGetListUser(number)}
+          key={1}
+          active={1 === data.data.page}
+          onClick={() => this.onPageIndexChange(1)}
         >
-          {number}
+          {1}
         </Pagination.Item>
       );
     }
@@ -51,12 +75,27 @@ class ListUser extends React.Component {
         pageMax: data.data.total_pages,
         paginationHtml: paginationHtml,
       });
+    } else {
+      if (typeof data.data.data === "object") {
+        console.log("objecttttttt");
+        this.setState({
+          listUser: [data.data.data],
+          page: 1,
+          pageMax: 1,
+          paginationHtml: paginationHtml,
+        });
+      }
     }
   }
 
   componentDidMount() {
-    this.handleGetListUser(this.state.page);
+    this.handleGetListUser({ page: this.state.page });
   }
+
+  openCloseFilter = () => {
+    const { showFilter } = this.state;
+    this.setState({ showFilter: !showFilter });
+  };
 
   openModal = () => {
     this.setState({ showModal: true });
@@ -91,6 +130,28 @@ class ListUser extends React.Component {
   onUpdateUser = (user) => {
     this.setState({ editUser: user });
     this.openModal();
+  };
+
+  onChangeUserIdValue = (event) => {
+    this.setState({
+      filter: {
+        id: event.target.value,
+      },
+    });
+  };
+
+  onClean = () => {
+    this.setState({
+      filter: {
+        id: "",
+      },
+    });
+  };
+
+  onPageIndexChange = (index) => {
+    if (index !== this.state.page) {
+      this.handleGetListUser({ page: index });
+    }
   };
 
   handleAddUpdateUser = (user) => {
@@ -137,23 +198,67 @@ class ListUser extends React.Component {
     }
   };
 
+  handleSearch = () => {
+    console.log(11111);
+    const filter = {
+      id: this.state.filter.id,
+    };
+    this.handleGetListUser(filter);
+  };
+
   render() {
     const {
       listUser,
       paginationHtml,
       editUser,
+      showFilter,
       showModal,
       showDeleteModal,
       loadingDelete,
+      filter,
     } = this.state;
-    // console.log(editUser);
+
     return (
       <div className="list-user container">
         <div className="list-user__title">List user</div>
-        <div>
-          <Button variant="success" onClick={() => this.onAddUser()}>
-            Add New User
-          </Button>
+        <div className="list-user__action">
+          <div className="list-user__action--btn">
+            <Button variant="success" onClick={() => this.onAddUser()}>
+              Add New User
+            </Button>
+            <Button variant="light" onClick={() => this.openCloseFilter()}>
+              Filter
+            </Button>
+          </div>
+          <div className="list-user__action--filter" hidden={!showFilter}>
+            <div>
+              <Form>
+                <Form.Group>
+                  <Form.Label style={{ fontSize: "16px" }}>User ID</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={filter.id}
+                    placeholder="User ID"
+                    onChange={($event) => this.onChangeUserIdValue($event)}
+                  />
+                </Form.Group>
+
+                <div className="group-btn">
+                  <Button variant="light" onClick={() => this.onClean()}>
+                    Clean
+                  </Button>
+
+                  <Button
+                    style={{ marginLeft: "6px" }}
+                    variant="success"
+                    onClick={() => this.handleSearch()}
+                  >
+                    Search
+                  </Button>
+                </div>
+              </Form>
+            </div>
+          </div>
 
           <AddUser
             closeModal={this.closeModal}

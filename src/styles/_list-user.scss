@@ -8,6 +8,28 @@
         margin-bottom: 20px;
     }
 
+    &__action {
+        &--btn {
+display: flex;
+justify-content: space-between;
+        }
+
+        &--filter {
+            form {
+                margin-top: 16px;
+                padding: 0 16px 16px;
+                border: dashed 1px grey;
+                border-radius: 6px;
+            }
+
+            .group-btn {
+                width: fit-content;
+                margin-left: auto;
+                margin-top: 12px;
+            }
+        }
+    }
+
     &__table {
         th {
             font-size: 20px;
